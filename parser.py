@@ -201,6 +201,9 @@ def parse_excel(path: str | Path) -> pd.DataFrame:
 
     df["keywords"] = df["keywords"].apply(parse_keywords)
 
+    # Normalizar afiliaciones
+    df["affiliations"] = df["affiliations"].apply(_normalize_affiliations)
+
     # Extraer países de afiliaciones
     df["countries"] = df["affiliations"].apply(_extract_countries)
 
@@ -269,6 +272,63 @@ _NORMALIZE = {
     "usa": "United States", "uk": "United Kingdom",
     "uae": "United Arab Emirates", "korea": "South Korea",
 }
+
+
+def _normalize_affiliations(aff_text: str) -> str:
+    """Homologa variaciones de nombre de instituciones."""
+    if not aff_text or not isinstance(aff_text, str):
+        return ""
+
+    # Separar múltiples instituciones (separadas por |)
+    affiliations = [a.strip() for a in aff_text.split("|")]
+
+    normalized = []
+    seen = set()
+
+    for aff in affiliations:
+        if not aff:
+            continue
+
+        # Estrategia: Buscar la institución principal
+        # Patterns: "Instituto de X, Universidad Y, País"
+        # Preferimos extraer "Universidad Y"
+        inst_name = _extract_main_institution(aff)
+
+        if inst_name and inst_name not in seen:
+            normalized.append(inst_name)
+            seen.add(inst_name)
+
+    return " | ".join(normalized) if normalized else aff_text.split("|")[0].strip()
+
+
+def _extract_main_institution(aff_text: str) -> str:
+    """Extrae el nombre principal de una afiliación."""
+    if not aff_text:
+        return ""
+
+    parts = [p.strip() for p in aff_text.split(",")]
+
+    # Palabras clave que indican institución principal
+    keywords = [
+        "university", "universidad", "universität", "università",
+        "institute", "instituto", "center", "centre", "laboratory",
+        "college", "école", "school", "escuela", "politecnico",
+    ]
+
+    # Buscar partes con palabras clave de institución
+    candidates = []
+    for i, part in enumerate(parts):
+        part_lower = part.lower()
+        if any(kw in part_lower for kw in keywords):
+            candidates.append((i, part))
+
+    if candidates:
+        # Preferir la última institución importante (generalmente la más específica)
+        idx, main = candidates[-1]
+        return main
+
+    # Si no hay keyword, devolver la primera parte
+    return parts[0] if parts else aff_text
 
 
 def _extract_countries(text: str) -> list[str]:

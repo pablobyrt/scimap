@@ -214,6 +214,10 @@ def _parse_work(w: dict) -> dict:
 
     doi = (w.get("doi") or "").replace("https://doi.org/", "")
 
+    # Normalizar afiliaciones
+    affiliations_str = " | ".join(affiliations_raw)
+    affiliations_norm = normalize_affiliations(affiliations_str)
+
     return {
         "id":           w.get("id", "").split("/")[-1],
         "type":         doc_type,
@@ -226,7 +230,7 @@ def _parse_work(w: dict) -> dict:
         "authors":      authors,
         "author_count": len(authors),
         "keywords":     keywords,
-        "affiliations": " | ".join(affiliations_raw),
+        "affiliations": affiliations_norm,
         "countries":    countries,
         "cited_by":     w.get("cited_by_count", 0),
         "language":     w.get("language", ""),
@@ -246,6 +250,72 @@ def _reconstruct_abstract(inv_index: dict | None) -> str:
         for pos in positions:
             words[pos] = word
     return " ".join(words[i] for i in sorted(words))
+
+
+def normalize_affiliations(affiliations_str: str) -> str:
+    """
+    Homologa variaciones de nombre de instituciones.
+    Extrae la institución principal y elimina duplicados.
+
+    Ejemplos:
+    - "Universidad de Chile, Santiago, Chile" → "Universidad de Chile"
+    - "Instituto de Astronomía, University of Edinburgh, UK" → "University of Edinburgh"
+    """
+    if not affiliations_str or not isinstance(affiliations_str, str):
+        return ""
+
+    # Separar múltiples instituciones (separadas por |)
+    affiliations = [aff.strip() for aff in affiliations_str.split("|")]
+
+    normalized = []
+    seen = set()
+
+    for aff in affiliations:
+        if not aff:
+            continue
+
+        # Estrategia 1: Buscar palabras clave de universidad
+        inst_name = _extract_main_institution(aff)
+
+        if inst_name and inst_name not in seen:
+            normalized.append(inst_name)
+            seen.add(inst_name)
+
+    return " | ".join(normalized) if normalized else affiliations_str.split("|")[0].strip()
+
+
+def _extract_main_institution(aff_text: str) -> str:
+    """Extrae el nombre principal de una afiliación."""
+    if not aff_text:
+        return ""
+
+    # Patrón 1: "Instituto/Department, Universidad, País"
+    # Buscar la universidad (última institución antes del país)
+    parts = [p.strip() for p in aff_text.split(",")]
+
+    # Palabras clave que indican institución principal
+    keywords = [
+        "university", "university of", "universidad", "universität", "università",
+        "institute", "instituto", "center", "centre", "laboratory", "laboratorio",
+        "college", "colegio", "école", "school", "escuela", "politecnico",
+    ]
+
+    # Buscar la parte que contiene universidad/institute (típicamente la más importante)
+    candidates = []
+    for i, part in enumerate(parts):
+        part_lower = part.lower()
+        # Si contiene palabra clave de institución, es candidato
+        if any(kw in part_lower for kw in keywords):
+            candidates.append((i, part))
+
+    if candidates:
+        # Preferir la institución más importante (generalmente la segunda más importante)
+        # Si hay "Instituto de X, Universidad Y", preferimos "Universidad Y"
+        idx, main = candidates[-1]  # Última institución con keyword
+        return main
+
+    # Si no encontramos keyword, devolver la primera parte (antes de primer comma)
+    return parts[0] if parts else aff_text
 
 
 # ── stats rápidas (para UI preview) ───────────────────────────────────────────
