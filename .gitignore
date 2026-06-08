@@ -1,0 +1,10 @@
+.env
+.gender_cache.json
+.analysis_cache.json
+.pdf_cache/
+__pycache__/
+*.pyc
+assets/networks/
+*.xlsx
+*.bib
+*.pdf

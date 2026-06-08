@@ -1,0 +1,14 @@
+anthropic==0.94.1
+bibtexparser==1.4.4
+dash==4.1.0
+dash-bootstrap-components==2.0.4
+gender-guesser==0.4.0
+gunicorn==26.0.0
+networkx==3.6.1
+numpy==2.4.2
+openpyxl==3.1.5
+pandas==3.0.0
+pdfplumber==0.11.9
+plotly==6.5.2
+pyvis==0.3.2
+requests==2.32.4
