@@ -140,9 +140,9 @@ SIDEBAR = html.Div([
         dcc.Upload(
             id="upload-data",
             children=html.Div([
-                html.Span("Arrastra tu .bib o .txt", style={"fontSize": "0.78rem", "color": "#CBD5E1"}),
+                html.Span("Arrastra tu archivo", style={"fontSize": "0.78rem", "color": "#CBD5E1"}),
                 html.Br(),
-                html.Span("(Scopus / WoS)", style={"fontSize": "0.7rem", "color": "#64748B"}),
+                html.Span(".bib .txt .xlsx .xls", style={"fontSize": "0.7rem", "color": "#64748B"}),
             ]),
             style={
                 "width": "100%", "border": "2px dashed #475569", "borderRadius": "6px",
@@ -338,7 +338,7 @@ def handle_upload(contents, filename):
     decoded = base64.b64decode(content_string)
     suffix  = Path(filename).suffix.lower()
 
-    if suffix not in (".bib", ".txt", ".tsv"):
+    if suffix not in (".bib", ".txt", ".tsv", ".xlsx", ".xls"):
         return f"Formato no soportado: {suffix}", dash.no_update
 
     try:

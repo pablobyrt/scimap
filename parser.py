@@ -117,8 +117,115 @@ def _process_wos_record(raw: dict) -> dict:
     }
 
 
+def parse_excel(path: str | Path) -> pd.DataFrame:
+    """Lee un .xlsx/.xls y lo convierte al formato estándar."""
+    df = pd.read_excel(path)
+
+    # Normalizar nombres de columnas (case-insensitive matching)
+    col_map = {}
+    for col in df.columns:
+        col_lower = col.lower().strip()
+        # Mapeo de variaciones comunes
+        if col_lower in ("title", "título"):
+            col_map[col] = "title"
+        elif col_lower in ("author", "authors", "autores", "author_list"):
+            col_map[col] = "authors"
+        elif col_lower in ("year", "año", "publication_year"):
+            col_map[col] = "year"
+        elif col_lower in ("journal", "revista", "source", "publication"):
+            col_map[col] = "journal"
+        elif col_lower in ("volume", "volumen"):
+            col_map[col] = "volume"
+        elif col_lower in ("doi", "digital_object_identifier"):
+            col_map[col] = "doi"
+        elif col_lower in ("abstract", "resumen", "abstract_text"):
+            col_map[col] = "abstract"
+        elif col_lower in ("keyword", "keywords", "palabras clave", "keywords_plus"):
+            col_map[col] = "keywords"
+        elif col_lower in ("affiliation", "affiliations", "afiliación"):
+            col_map[col] = "affiliations"
+        elif col_lower in ("language", "idioma"):
+            col_map[col] = "language"
+        elif col_lower in ("publisher", "editorial", "publicador"):
+            col_map[col] = "publisher"
+        elif col_lower in ("type", "document_type", "tipo"):
+            col_map[col] = "type"
+        elif col_lower in ("cited_by", "cited by", "citado por", "citations"):
+            col_map[col] = "cited_by"
+
+    df = df.rename(columns=col_map)
+
+    # Asegurar columnas mínimas
+    for col in ["title", "authors", "year", "journal", "doi", "abstract", "keywords", "affiliations"]:
+        if col not in df.columns:
+            df[col] = ""
+
+    # Normalizar datos
+    df["title"] = df["title"].fillna("").apply(_clean)
+    df["journal"] = df["journal"].fillna("").apply(_clean)
+    df["abstract"] = df["abstract"].fillna("").apply(_clean)
+    df["affiliations"] = df["affiliations"].fillna("").apply(_clean)
+    df["doi"] = df["doi"].fillna("").astype(str)
+    df["language"] = df["language"].fillna("")
+    df["publisher"] = df["publisher"].fillna("").apply(_clean)
+    df["type"] = df["type"].fillna("Journal")
+    df["volume"] = df["volume"].fillna("")
+
+    # Convertir año a int
+    df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
+
+    # Procesar autores: si es string, convertir a lista
+    def parse_authors(val):
+        if isinstance(val, list):
+            return val
+        if pd.isna(val) or val == "":
+            return []
+        s = str(val).strip()
+        # Soporta: "A, B; C, D" o "A and B and C"
+        if " and " in s.lower():
+            return [a.strip() for a in re.split(r"\s+and\s+", s, flags=re.IGNORECASE) if a.strip()]
+        else:
+            return [a.strip() for a in re.split(r"[;,]", s) if a.strip()]
+
+    df["authors"] = df["authors"].apply(parse_authors)
+    df["author_count"] = df["authors"].apply(len)
+
+    # Procesar keywords: si es string, convertir a lista
+    def parse_keywords(val):
+        if isinstance(val, list):
+            return val
+        if pd.isna(val) or val == "":
+            return []
+        s = str(val).strip()
+        return [k.strip() for k in re.split(r"[;,]", s) if k.strip()]
+
+    df["keywords"] = df["keywords"].apply(parse_keywords)
+
+    # Extraer países de afiliaciones
+    df["countries"] = df["affiliations"].apply(_extract_countries)
+
+    # Procesar cited_by
+    if "cited_by" in df.columns:
+        df["cited_by"] = pd.to_numeric(df["cited_by"], errors="coerce").fillna(0).astype(int)
+    else:
+        df["cited_by"] = 0
+
+    # Agregar ID e source
+    if "id" not in df.columns:
+        df["id"] = df.index.astype(str)
+    df["source"] = "Excel"
+
+    # Mantener solo columnas estándar
+    cols = ["id", "type", "title", "year", "journal", "volume", "doi", "abstract",
+            "authors", "author_count", "keywords", "affiliations", "countries",
+            "cited_by", "language", "publisher", "source"]
+    df = df[[c for c in cols if c in df.columns]]
+
+    return df
+
+
 def load_data(*paths: str | Path) -> pd.DataFrame:
-    """Carga uno o más archivos .bib o .txt y los combina."""
+    """Carga uno o más archivos .bib, .txt o .xlsx y los combina."""
     frames = []
     for p in paths:
         p = Path(p)
@@ -126,6 +233,8 @@ def load_data(*paths: str | Path) -> pd.DataFrame:
             frames.append(parse_scopus_bib(p))
         elif p.suffix.lower() in (".txt", ".tsv"):
             frames.append(parse_wos_txt(p))
+        elif p.suffix.lower() in (".xlsx", ".xls"):
+            frames.append(parse_excel(p))
         else:
             raise ValueError(f"Formato no soportado: {p.suffix}")
 
