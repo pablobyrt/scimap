@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 520px;
+                 background-color: #F8FAFC;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Fortes, Sergio", "label": "Fortes, Sergio", "shape": "dot", "size": 28.0, "title": "Fortes, Sergio\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Villegas, Javier", "label": "Villegas, Javier", "shape": "dot", "size": 28.0, "title": "Villegas, Javier\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Chaouech, Fatma", "label": "Chaouech, Fatma", "shape": "dot", "size": 28.0, "title": "Chaouech, Fatma\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Pereira, Ant\u0026oacute;nio", "label": "Pereira, Ant\u0026oacute;nio", "shape": "dot", "size": 28.0, "title": "Pereira, Ant\u0026oacute;nio\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Villarino, Alba", "label": "Villarino, Alba", "shape": "dot", "size": 28.0, "title": "Villarino, Alba\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Cortines, Aser", "label": "Cortines, Aser", "shape": "dot", "size": 28.0, "title": "Cortines, Aser\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Baena, Carlos", "label": "Baena, Carlos", "shape": "dot", "size": 28.0, "title": "Baena, Carlos\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Or\u0026uacute;s, Rom\u0026aacute;n", "label": "Or\u0026uacute;s, Rom\u0026aacute;n", "shape": "dot", "size": 28.0, "title": "Or\u0026uacute;s, Rom\u0026aacute;n\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Barco, Raquel", "label": "Barco, Raquel", "shape": "dot", "size": 28.0, "title": "Barco, Raquel\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Chetry, Anup Basnet", "label": "Chetry, Anup Basnet", "shape": "dot", "size": 28.0, "title": "Chetry, Anup Basnet\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Ohto, Keisuke", "label": "Ohto, Keisuke", "shape": "dot", "size": 28.0, "title": "Ohto, Keisuke\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Chen, Fuli", "label": "Chen, Fuli", "shape": "dot", "size": 28.0, "title": "Chen, Fuli\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Wang, Zhiping", "label": "Wang, Zhiping", "shape": "dot", "size": 28.0, "title": "Wang, Zhiping\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Wang, Shaojun", "label": "Wang, Shaojun", "shape": "dot", "size": 28.0, "title": "Wang, Shaojun\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Li, Xin", "label": "Li, Xin", "shape": "dot", "size": 28.0, "title": "Li, Xin\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Yan, Lin", "label": "Yan, Lin", "shape": "dot", "size": 28.0, "title": "Yan, Lin\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Li, Jin", "label": "Li, Jin", "shape": "dot", "size": 28.0, "title": "Li, Jin\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Zeng, Qian", "label": "Zeng, Qian", "shape": "dot", "size": 28.0, "title": "Zeng, Qian\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Liu, Junbang", "label": "Liu, Junbang", "shape": "dot", "size": 28.0, "title": "Liu, Junbang\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Shao, Yanwei", "label": "Shao, Yanwei", "shape": "dot", "size": 28.0, "title": "Shao, Yanwei\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Indraganti, Swathi Priya", "label": "Indraganti, Swathi Priya", "shape": "dot", "size": 28.0, "title": "Indraganti, Swathi Priya\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Vappangi, Suseela", "label": "Vappangi, Suseela", "shape": "dot", "size": 28.0, "title": "Vappangi, Suseela\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Mishra, Anoop Kumar", "label": "Mishra, Anoop Kumar", "shape": "dot", "size": 28.0, "title": "Mishra, Anoop Kumar\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Mathe, Sudha Ellison", "label": "Mathe, Sudha Ellison", "shape": "dot", "size": 28.0, "title": "Mathe, Sudha Ellison\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Nasir, Ali Arshad", "label": "Nasir, Ali Arshad", "shape": "dot", "size": 28.0, "title": "Nasir, Ali Arshad\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Deepa, T.", "label": "Deepa, T.", "shape": "dot", "size": 28.0, "title": "Deepa, T.\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Gupta, Neha", "label": "Gupta, Neha", "shape": "dot", "size": 28.0, "title": "Gupta, Neha\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Ciangottini, Diego", "label": "Ciangottini, Diego", "shape": "dot", "size": 28.0, "title": "Ciangottini, Diego\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Spiga, Daniele", "label": "Spiga, Daniele", "shape": "dot", "size": 28.0, "title": "Spiga, Daniele\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Memon, Ahmed Shiraz", "label": "Memon, Ahmed Shiraz", "shape": "dot", "size": 28.0, "title": "Memon, Ahmed Shiraz\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Manzi, Andrea", "label": "Manzi, Andrea", "shape": "dot", "size": 28.0, "title": "Manzi, Andrea\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Filipcic, Andrej", "label": "Filipcic, Andrej", "shape": "dot", "size": 28.0, "title": "Filipcic, Andrej\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Troja, Antonino", "label": "Troja, Antonino", "shape": "dot", "size": 28.0, "title": "Troja, Antonino\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Fanzago, Federica", "label": "Fanzago, Federica", "shape": "dot", "size": 28.0, "title": "Fanzago, Federica\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Bianchini, Giulio", "label": "Bianchini, Giulio", "shape": "dot", "size": 28.0, "title": "Bianchini, Giulio\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Sgaravatto, Massimo", "label": "Sgaravatto, Massimo", "shape": "dot", "size": 28.0, "title": "Sgaravatto, Massimo\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Prica, Teo", "label": "Prica, Teo", "shape": "dot", "size": 28.0, "title": "Prica, Teo\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Boccali, Tommaso", "label": "Boccali, Tommaso", "shape": "dot", "size": 28.0, "title": "Boccali, Tommaso\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Tedeschi, Tommaso", "label": "Tedeschi, Tommaso", "shape": "dot", "size": 28.0, "title": "Tedeschi, Tommaso\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Jang-Jaccard, Julian", "label": "Jang-Jaccard, Julian", "shape": "dot", "size": 28.0, "title": "Jang-Jaccard, Julian\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Caroff, Philippe", "label": "Caroff, Philippe", "shape": "dot", "size": 28.0, "title": "Caroff, Philippe\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Blezinger, Evan", "label": "Blezinger, Evan", "shape": "dot", "size": 28.0, "title": "Blezinger, Evan\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Mulder, Valentin", "label": "Mulder, Valentin", "shape": "dot", "size": 28.0, "title": "Mulder, Valentin\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Mermoud, Alain", "label": "Mermoud, Alain", "shape": "dot", "size": 28.0, "title": "Mermoud, Alain\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Lenders, Vincent", "label": "Lenders, Vincent", "shape": "dot", "size": 28.0, "title": "Lenders, Vincent\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Morapakula, Sai Nandan", "label": "Morapakula, Sai Nandan", "shape": "dot", "size": 28.0, "title": "Morapakula, Sai Nandan\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Sangiogo-Gil, Eduarda", "label": "Sangiogo-Gil, Eduarda", "shape": "dot", "size": 28.0, "title": "Sangiogo-Gil, Eduarda\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Gonz\u00e1lez, Leticia", "label": "Gonz\u00e1lez, Leticia", "shape": "dot", "size": 28.0, "title": "Gonz\u00e1lez, Leticia\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Bellary, Sreevatsa", "label": "Bellary, Sreevatsa", "shape": "dot", "size": 28.0, "title": "Bellary, Sreevatsa\u003cbr\u003epapers: 1"}, {"color": "#97c2fc", "font": {"color": "#1e293b"}, "id": "Raghavendra, Ananya Hadadi", "label": "Raghavendra, Ananya Hadadi", "shape": "dot", "size": 28.0, "title": "Raghavendra, Ananya Hadadi\u003cbr\u003epapers: 1"}]);
+                  edges = new vis.DataSet([{"from": "Fortes, Sergio", "to": "Villegas, Javier", "value": 1}, {"from": "Fortes, Sergio", "to": "Chaouech, Fatma", "value": 1}, {"from": "Fortes, Sergio", "to": "Pereira, Ant\u0026oacute;nio", "value": 1}, {"from": "Fortes, Sergio", "to": "Villarino, Alba", "value": 1}, {"from": "Fortes, Sergio", "to": "Cortines, Aser", "value": 1}, {"from": "Fortes, Sergio", "to": "Baena, Carlos", "value": 1}, {"from": "Fortes, Sergio", "to": "Or\u0026uacute;s, Rom\u0026aacute;n", "value": 1}, {"from": "Fortes, Sergio", "to": "Barco, Raquel", "value": 1}, {"from": "Villegas, Javier", "to": "Chaouech, Fatma", "value": 1}, {"from": "Villegas, Javier", "to": "Pereira, Ant\u0026oacute;nio", "value": 1}, {"from": "Villegas, Javier", "to": "Villarino, Alba", "value": 1}, {"from": "Villegas, Javier", "to": "Cortines, Aser", "value": 1}, {"from": "Villegas, Javier", "to": "Baena, Carlos", "value": 1}, {"from": "Villegas, Javier", "to": "Or\u0026uacute;s, Rom\u0026aacute;n", "value": 1}, {"from": "Villegas, Javier", "to": "Barco, Raquel", "value": 1}, {"from": "Chaouech, Fatma", "to": "Pereira, Ant\u0026oacute;nio", "value": 1}, {"from": "Chaouech, Fatma", "to": "Villarino, Alba", "value": 1}, {"from": "Chaouech, Fatma", "to": "Cortines, Aser", "value": 1}, {"from": "Chaouech, Fatma", "to": "Baena, Carlos", "value": 1}, {"from": "Chaouech, Fatma", "to": "Or\u0026uacute;s, Rom\u0026aacute;n", "value": 1}, {"from": "Chaouech, Fatma", "to": "Barco, Raquel", "value": 1}, {"from": "Pereira, Ant\u0026oacute;nio", "to": "Villarino, Alba", "value": 1}, {"from": "Pereira, Ant\u0026oacute;nio", "to": "Cortines, Aser", "value": 1}, {"from": "Pereira, Ant\u0026oacute;nio", "to": "Baena, Carlos", "value": 1}, {"from": "Pereira, Ant\u0026oacute;nio", "to": "Or\u0026uacute;s, Rom\u0026aacute;n", "value": 1}, {"from": "Pereira, Ant\u0026oacute;nio", "to": "Barco, Raquel", "value": 1}, {"from": "Villarino, Alba", "to": "Cortines, Aser", "value": 1}, {"from": "Villarino, Alba", "to": "Baena, Carlos", "value": 1}, {"from": "Villarino, Alba", "to": "Or\u0026uacute;s, Rom\u0026aacute;n", "value": 1}, {"from": "Villarino, Alba", "to": "Barco, Raquel", "value": 1}, {"from": "Cortines, Aser", "to": "Baena, Carlos", "value": 1}, {"from": "Cortines, Aser", "to": "Or\u0026uacute;s, Rom\u0026aacute;n", "value": 1}, {"from": "Cortines, Aser", "to": "Barco, Raquel", "value": 1}, {"from": "Baena, Carlos", "to": "Or\u0026uacute;s, Rom\u0026aacute;n", "value": 1}, {"from": "Baena, Carlos", "to": "Barco, Raquel", "value": 1}, {"from": "Or\u0026uacute;s, Rom\u0026aacute;n", "to": "Barco, Raquel", "value": 1}, {"from": "Chetry, Anup Basnet", "to": "Ohto, Keisuke", "value": 1}, {"from": "Chen, Fuli", "to": "Wang, Zhiping", "value": 1}, {"from": "Chen, Fuli", "to": "Wang, Shaojun", "value": 1}, {"from": "Chen, Fuli", "to": "Li, Xin", "value": 1}, {"from": "Chen, Fuli", "to": "Yan, Lin", "value": 1}, {"from": "Chen, Fuli", "to": "Li, Jin", "value": 1}, {"from": "Chen, Fuli", "to": "Zeng, Qian", "value": 1}, {"from": "Chen, Fuli", "to": "Liu, Junbang", "value": 1}, {"from": "Chen, Fuli", "to": "Shao, Yanwei", "value": 1}, {"from": "Wang, Zhiping", "to": "Wang, Shaojun", "value": 1}, {"from": "Wang, Zhiping", "to": "Li, Xin", "value": 1}, {"from": "Wang, Zhiping", "to": "Yan, Lin", "value": 1}, {"from": "Wang, Zhiping", "to": "Li, Jin", "value": 1}, {"from": "Wang, Zhiping", "to": "Zeng, Qian", "value": 1}, {"from": "Wang, Zhiping", "to": "Liu, Junbang", "value": 1}, {"from": "Wang, Zhiping", "to": "Shao, Yanwei", "value": 1}, {"from": "Wang, Shaojun", "to": "Li, Xin", "value": 1}, {"from": "Wang, Shaojun", "to": "Yan, Lin", "value": 1}, {"from": "Wang, Shaojun", "to": "Li, Jin", "value": 1}, {"from": "Wang, Shaojun", "to": "Zeng, Qian", "value": 1}, {"from": "Wang, Shaojun", "to": "Liu, Junbang", "value": 1}, {"from": "Wang, Shaojun", "to": "Shao, Yanwei", "value": 1}, {"from": "Li, Xin", "to": "Yan, Lin", "value": 1}, {"from": "Li, Xin", "to": "Li, Jin", "value": 1}, {"from": "Li, Xin", "to": "Zeng, Qian", "value": 1}, {"from": "Li, Xin", "to": "Liu, Junbang", "value": 1}, {"from": "Li, Xin", "to": "Shao, Yanwei", "value": 1}, {"from": "Yan, Lin", "to": "Li, Jin", "value": 1}, {"from": "Yan, Lin", "to": "Zeng, Qian", "value": 1}, {"from": "Yan, Lin", "to": "Liu, Junbang", "value": 1}, {"from": "Yan, Lin", "to": "Shao, Yanwei", "value": 1}, {"from": "Li, Jin", "to": "Zeng, Qian", "value": 1}, {"from": "Li, Jin", "to": "Liu, Junbang", "value": 1}, {"from": "Li, Jin", "to": "Shao, Yanwei", "value": 1}, {"from": "Zeng, Qian", "to": "Liu, Junbang", "value": 1}, {"from": "Zeng, Qian", "to": "Shao, Yanwei", "value": 1}, {"from": "Liu, Junbang", "to": "Shao, Yanwei", "value": 1}, {"from": "Indraganti, Swathi Priya", "to": "Vappangi, Suseela", "value": 1}, {"from": "Indraganti, Swathi Priya", "to": "Mishra, Anoop Kumar", "value": 1}, {"from": "Indraganti, Swathi Priya", "to": "Mathe, Sudha Ellison", "value": 1}, {"from": "Indraganti, Swathi Priya", "to": "Nasir, Ali Arshad", "value": 1}, {"from": "Indraganti, Swathi Priya", "to": "Deepa, T.", "value": 1}, {"from": "Indraganti, Swathi Priya", "to": "Gupta, Neha", "value": 1}, {"from": "Vappangi, Suseela", "to": "Mishra, Anoop Kumar", "value": 1}, {"from": "Vappangi, Suseela", "to": "Mathe, Sudha Ellison", "value": 1}, {"from": "Vappangi, Suseela", "to": "Nasir, Ali Arshad", "value": 1}, {"from": "Vappangi, Suseela", "to": "Deepa, T.", "value": 1}, {"from": "Vappangi, Suseela", "to": "Gupta, Neha", "value": 1}, {"from": "Mishra, Anoop Kumar", "to": "Mathe, Sudha Ellison", "value": 1}, {"from": "Mishra, Anoop Kumar", "to": "Nasir, Ali Arshad", "value": 1}, {"from": "Mishra, Anoop Kumar", "to": "Deepa, T.", "value": 1}, {"from": "Mishra, Anoop Kumar", "to": "Gupta, Neha", "value": 1}, {"from": "Mathe, Sudha Ellison", "to": "Nasir, Ali Arshad", "value": 1}, {"from": "Mathe, Sudha Ellison", "to": "Deepa, T.", "value": 1}, {"from": "Mathe, Sudha Ellison", "to": "Gupta, Neha", "value": 1}, {"from": "Nasir, Ali Arshad", "to": "Deepa, T.", "value": 1}, {"from": "Nasir, Ali Arshad", "to": "Gupta, Neha", "value": 1}, {"from": "Deepa, T.", "to": "Gupta, Neha", "value": 1}, {"from": "Ciangottini, Diego", "to": "Spiga, Daniele", "value": 1}, {"from": "Ciangottini, Diego", "to": "Memon, Ahmed Shiraz", "value": 1}, {"from": "Ciangottini, Diego", "to": "Manzi, Andrea", "value": 1}, {"from": "Ciangottini, Diego", "to": "Filipcic, Andrej", "value": 1}, {"from": "Ciangottini, Diego", "to": "Troja, Antonino", "value": 1}, {"from": "Ciangottini, Diego", "to": "Fanzago, Federica", "value": 1}, {"from": "Ciangottini, Diego", "to": "Bianchini, Giulio", "value": 1}, {"from": "Ciangottini, Diego", "to": "Sgaravatto, Massimo", "value": 1}, {"from": "Ciangottini, Diego", "to": "Prica, Teo", "value": 1}, {"from": "Ciangottini, Diego", "to": "Boccali, Tommaso", "value": 1}, {"from": "Ciangottini, Diego", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Spiga, Daniele", "to": "Memon, Ahmed Shiraz", "value": 1}, {"from": "Spiga, Daniele", "to": "Manzi, Andrea", "value": 1}, {"from": "Spiga, Daniele", "to": "Filipcic, Andrej", "value": 1}, {"from": "Spiga, Daniele", "to": "Troja, Antonino", "value": 1}, {"from": "Spiga, Daniele", "to": "Fanzago, Federica", "value": 1}, {"from": "Spiga, Daniele", "to": "Bianchini, Giulio", "value": 1}, {"from": "Spiga, Daniele", "to": "Sgaravatto, Massimo", "value": 1}, {"from": "Spiga, Daniele", "to": "Prica, Teo", "value": 1}, {"from": "Spiga, Daniele", "to": "Boccali, Tommaso", "value": 1}, {"from": "Spiga, Daniele", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Memon, Ahmed Shiraz", "to": "Manzi, Andrea", "value": 1}, {"from": "Memon, Ahmed Shiraz", "to": "Filipcic, Andrej", "value": 1}, {"from": "Memon, Ahmed Shiraz", "to": "Troja, Antonino", "value": 1}, {"from": "Memon, Ahmed Shiraz", "to": "Fanzago, Federica", "value": 1}, {"from": "Memon, Ahmed Shiraz", "to": "Bianchini, Giulio", "value": 1}, {"from": "Memon, Ahmed Shiraz", "to": "Sgaravatto, Massimo", "value": 1}, {"from": "Memon, Ahmed Shiraz", "to": "Prica, Teo", "value": 1}, {"from": "Memon, Ahmed Shiraz", "to": "Boccali, Tommaso", "value": 1}, {"from": "Memon, Ahmed Shiraz", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Manzi, Andrea", "to": "Filipcic, Andrej", "value": 1}, {"from": "Manzi, Andrea", "to": "Troja, Antonino", "value": 1}, {"from": "Manzi, Andrea", "to": "Fanzago, Federica", "value": 1}, {"from": "Manzi, Andrea", "to": "Bianchini, Giulio", "value": 1}, {"from": "Manzi, Andrea", "to": "Sgaravatto, Massimo", "value": 1}, {"from": "Manzi, Andrea", "to": "Prica, Teo", "value": 1}, {"from": "Manzi, Andrea", "to": "Boccali, Tommaso", "value": 1}, {"from": "Manzi, Andrea", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Filipcic, Andrej", "to": "Troja, Antonino", "value": 1}, {"from": "Filipcic, Andrej", "to": "Fanzago, Federica", "value": 1}, {"from": "Filipcic, Andrej", "to": "Bianchini, Giulio", "value": 1}, {"from": "Filipcic, Andrej", "to": "Sgaravatto, Massimo", "value": 1}, {"from": "Filipcic, Andrej", "to": "Prica, Teo", "value": 1}, {"from": "Filipcic, Andrej", "to": "Boccali, Tommaso", "value": 1}, {"from": "Filipcic, Andrej", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Troja, Antonino", "to": "Fanzago, Federica", "value": 1}, {"from": "Troja, Antonino", "to": "Bianchini, Giulio", "value": 1}, {"from": "Troja, Antonino", "to": "Sgaravatto, Massimo", "value": 1}, {"from": "Troja, Antonino", "to": "Prica, Teo", "value": 1}, {"from": "Troja, Antonino", "to": "Boccali, Tommaso", "value": 1}, {"from": "Troja, Antonino", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Fanzago, Federica", "to": "Bianchini, Giulio", "value": 1}, {"from": "Fanzago, Federica", "to": "Sgaravatto, Massimo", "value": 1}, {"from": "Fanzago, Federica", "to": "Prica, Teo", "value": 1}, {"from": "Fanzago, Federica", "to": "Boccali, Tommaso", "value": 1}, {"from": "Fanzago, Federica", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Bianchini, Giulio", "to": "Sgaravatto, Massimo", "value": 1}, {"from": "Bianchini, Giulio", "to": "Prica, Teo", "value": 1}, {"from": "Bianchini, Giulio", "to": "Boccali, Tommaso", "value": 1}, {"from": "Bianchini, Giulio", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Sgaravatto, Massimo", "to": "Prica, Teo", "value": 1}, {"from": "Sgaravatto, Massimo", "to": "Boccali, Tommaso", "value": 1}, {"from": "Sgaravatto, Massimo", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Prica, Teo", "to": "Boccali, Tommaso", "value": 1}, {"from": "Prica, Teo", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Boccali, Tommaso", "to": "Tedeschi, Tommaso", "value": 1}, {"from": "Jang-Jaccard, Julian", "to": "Caroff, Philippe", "value": 1}, {"from": "Jang-Jaccard, Julian", "to": "Blezinger, Evan", "value": 1}, {"from": "Jang-Jaccard, Julian", "to": "Mulder, Valentin", "value": 1}, {"from": "Jang-Jaccard, Julian", "to": "Mermoud, Alain", "value": 1}, {"from": "Jang-Jaccard, Julian", "to": "Lenders, Vincent", "value": 1}, {"from": "Caroff, Philippe", "to": "Blezinger, Evan", "value": 1}, {"from": "Caroff, Philippe", "to": "Mulder, Valentin", "value": 1}, {"from": "Caroff, Philippe", "to": "Mermoud, Alain", "value": 1}, {"from": "Caroff, Philippe", "to": "Lenders, Vincent", "value": 1}, {"from": "Blezinger, Evan", "to": "Mulder, Valentin", "value": 1}, {"from": "Blezinger, Evan", "to": "Mermoud, Alain", "value": 1}, {"from": "Blezinger, Evan", "to": "Lenders, Vincent", "value": 1}, {"from": "Mulder, Valentin", "to": "Mermoud, Alain", "value": 1}, {"from": "Mulder, Valentin", "to": "Lenders, Vincent", "value": 1}, {"from": "Mermoud, Alain", "to": "Lenders, Vincent", "value": 1}, {"from": "Sangiogo-Gil, Eduarda", "to": "Gonz\u00e1lez, Leticia", "value": 1}, {"from": "Bellary, Sreevatsa", "to": "Raghavendra, Ananya Hadadi", "value": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"shape": "dot", "scaling": {"min": 8, "max": 28}}, "edges": {"color": {"opacity": 0.4}, "smooth": false}, "physics": {"stabilization": {"iterations": 150}}, "interaction": {"hover": true, "tooltipDelay": 100}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

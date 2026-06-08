@@ -72,16 +72,34 @@ def _empty_fig(msg="Carga datos para ver este gráfico"):
     return fig
 
 
-def filter_df(years, types, sources):
+def filter_df(years, types, sources, click_filters=None):
+    """Filtra DataFrame por años, tipos, fuentes y clicks interactivos."""
     df = DF_FULL.copy()
     if df.empty:
         return df
+
+    # Filtros de rango (slider)
     if years and "year" in df.columns:
         df = df[df["year"].between(years[0], years[1])]
     if types and "type" in df.columns:
         df = df[df["type"].isin(types)]
     if sources and "source" in df.columns:
         df = df[df["source"].isin(sources)]
+
+    # Filtros de click (interactivos)
+    if click_filters:
+        if click_filters.get("author") and "authors" in df.columns:
+            df = df[df["authors"].apply(lambda x: click_filters["author"] in (x if isinstance(x, list) else []))]
+
+        if click_filters.get("institution") and "affiliations" in df.columns:
+            df = df[df["affiliations"].str.contains(click_filters["institution"], case=False, na=False)]
+
+        if click_filters.get("year") and "year" in df.columns:
+            df = df[df["year"] == click_filters["year"]]
+
+        if click_filters.get("country") and "countries" in df.columns:
+            df = df[df["countries"].apply(lambda x: click_filters["country"] in (x if isinstance(x, list) else []))]
+
     return df
 
 
@@ -249,6 +267,7 @@ SIDEBAR = html.Div([
 
 STORES = html.Div([
     dcc.Store(id="data-version", data=0),
+    dcc.Store(id="click-filters", data={"author": None, "institution": None, "year": None, "country": None}),
 ])
 
 # ── estado vacío ──────────────────────────────────────────────────────────────
@@ -636,10 +655,11 @@ def update_stats(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
+    Input("click-filters",    "data"),
     prevent_initial_call=False,
 )
-def update_production(years, types, sources, _):
-    df = filter_df(years, types or [], sources or [])
+def update_production(years, types, sources, _, click_filters):
+    df = filter_df(years, types or [], sources or [], click_filters)
     if df.empty:
         return _empty_fig(), _empty_fig(), _empty_fig(), _empty_fig()
 
@@ -681,10 +701,11 @@ def update_production(years, types, sources, _):
     Input("filter-type",     "value"),
     Input("filter-source",   "value"),
     Input("data-version",    "data"),
+    Input("click-filters",   "data"),
     prevent_initial_call=False,
 )
-def update_sources(years, types, sources, _):
-    df = filter_df(years, types or [], sources or [])
+def update_sources(years, types, sources, _, click_filters):
+    df = filter_df(years, types or [], sources or [], click_filters)
     if df.empty:
         return _empty_fig(), _empty_fig()
 
@@ -712,10 +733,11 @@ def update_sources(years, types, sources, _):
     Input("filter-type",         "value"),
     Input("filter-source",       "value"),
     Input("data-version",        "data"),
+    Input("click-filters",       "data"),
     prevent_initial_call=False,
 )
-def update_authors(years, types, sources, _):
-    df = filter_df(years, types or [], sources or [])
+def update_authors(years, types, sources, _, click_filters):
+    df = filter_df(years, types or [], sources or [], click_filters)
     if df.empty:
         return _empty_fig(), _empty_fig(), _empty_fig()
 
@@ -749,10 +771,11 @@ def update_authors(years, types, sources, _):
     Input("filter-type",           "value"),
     Input("filter-source",         "value"),
     Input("data-version",          "data"),
+    Input("click-filters",         "data"),
     prevent_initial_call=False,
 )
-def update_countries(years, types, sources, _):
-    df = filter_df(years, types or [], sources or [])
+def update_countries(years, types, sources, _, click_filters):
+    df = filter_df(years, types or [], sources or [], click_filters)
     if df.empty:
         return _empty_fig(), _empty_fig()
 
@@ -779,10 +802,11 @@ def update_countries(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
+    Input("click-filters",    "data"),
     prevent_initial_call=False,
 )
-def update_documents(years, types, sources, _):
-    df = filter_df(years, types or [], sources or [])
+def update_documents(years, types, sources, _, click_filters):
+    df = filter_df(years, types or [], sources or [], click_filters)
     if df.empty:
         return _empty_fig(), _empty_fig(), ""
 
@@ -826,10 +850,11 @@ def update_documents(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
-    prevent_initial_call=True,
+    Input("click-filters",    "data"),
+    prevent_initial_call=False,
 )
-def update_keywords(years, types, sources, _):
-    df = filter_df(years, types or [], sources or [])
+def update_keywords(years, types, sources, _, click_filters):
+    df = filter_df(years, types or [], sources or [], click_filters)
     if df.empty:
         return [_empty_fig()] * 5
 
@@ -909,10 +934,11 @@ def update_keywords(years, types, sources, _):
     Input("filter-type",     "value"),
     Input("filter-source",   "value"),
     Input("data-version",    "data"),
+    Input("click-filters",   "data"),
     prevent_initial_call=False,
 )
-def update_synthesis(years, types, sources, _):
-    df = filter_df(years, types or [], sources or [])
+def update_synthesis(years, types, sources, _, click_filters):
+    df = filter_df(years, types or [], sources or [], click_filters)
     if df.empty:
         return _empty_fig(), _empty_fig(), _empty_fig()
 
@@ -985,11 +1011,12 @@ GENDER_COLORS = {
     Input("filter-type",         "value"),
     Input("filter-source",       "value"),
     Input("data-version",        "data"),
+    Input("click-filters",       "data"),
     prevent_initial_call=False,
 )
-def update_gender(n_clicks, use_genderize, years, types, sources, _):
+def update_gender(n_clicks, use_genderize, years, types, sources, _, click_filters):
     global DF_GENDER
-    df_base = filter_df(years, types or [], sources or [])
+    df_base = filter_df(years, types or [], sources or [], click_filters)
     if df_base.empty:
         return [_empty_fig()] * 3 + ["", "", "Sin datos"]
 
@@ -1064,6 +1091,64 @@ def update_gender(n_clicks, use_genderize, years, types, sources, _):
         f"Cobertura: {coverage}% — {methods_str}",
         f"Listo — {coverage}% cobertura",
     )
+
+
+# ── callbacks interactivos: click-to-filter ───────────────────────────────────
+
+@callback(
+    Output("click-filters", "data"),
+    Input("chart-authors",      "clickData"),
+    Input("chart-affiliations", "clickData"),
+    Input("chart-year",         "clickData"),
+    Input("chart-map",          "clickData"),
+    State("click-filters",      "data"),
+    prevent_initial_call=True,
+)
+def update_click_filters(author_click, affil_click, year_click, map_click, current_filters):
+    """Detecta clicks en gráficos y actualiza filtros interactivos."""
+    if not current_filters:
+        current_filters = {"author": None, "institution": None, "year": None, "country": None}
+
+    # Detectar cuál gráfico fue clickeado
+    triggered = [t["prop_id"] for t in ctx.triggered if t["value"]]
+    if not triggered:
+        return current_filters
+
+    triggered_id = triggered[0].split(".")[0]
+
+    # Click en autores
+    if triggered_id == "chart-authors" and author_click:
+        try:
+            label = author_click["points"][0].get("customdata") or author_click["points"][0].get("label")
+            current_filters["author"] = label if label != current_filters.get("author") else None
+        except:
+            pass
+
+    # Click en afiliaciones
+    elif triggered_id == "chart-affiliations" and affil_click:
+        try:
+            label = affil_click["points"][0].get("customdata") or affil_click["points"][0].get("label")
+            current_filters["institution"] = label if label != current_filters.get("institution") else None
+        except:
+            pass
+
+    # Click en año
+    elif triggered_id == "chart-year" and year_click:
+        try:
+            year = int(year_click["points"][0].get("x"))
+            current_filters["year"] = year if year != current_filters.get("year") else None
+        except:
+            pass
+
+    # Click en mapa
+    elif triggered_id == "chart-map" and map_click:
+        try:
+            country = map_click["points"][0].get("customdata") or map_click["points"][0].get("label")
+            current_filters["country"] = country if country != current_filters.get("country") else None
+        except:
+            pass
+
+    return current_filters
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
