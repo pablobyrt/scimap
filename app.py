@@ -327,6 +327,7 @@ app.layout = html.Div([
     Output("data-version",  "data", allow_duplicate=True),
     Input("upload-data",    "contents"),
     State("upload-data",    "filename"),
+    prevent_initial_call=True,
 )
 def handle_upload(contents, filename):
     global DF_FULL, DF_GENDER
@@ -398,6 +399,7 @@ def search_institution(query):
     State("oa-inst-id",    "data"),
     State("oa-keywords",   "value"),
     State("oa-years",      "value"),
+    prevent_initial_call=True,
 )
 def run_oa_search(n_clicks, inst_id, keywords, years):
     global DF_FULL, DF_GENDER
