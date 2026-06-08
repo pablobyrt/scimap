@@ -327,7 +327,6 @@ app.layout = html.Div([
     Output("data-version",  "data", allow_duplicate=True),
     Input("upload-data",    "contents"),
     State("upload-data",    "filename"),
-    prevent_initial_call=True,
 )
 def handle_upload(contents, filename):
     global DF_FULL, DF_GENDER
@@ -368,7 +367,6 @@ def handle_upload(contents, filename):
     Output("oa-inst-results", "children"),
     Output("oa-inst-id",      "data"),
     Input("oa-institution",   "value"),
-    prevent_initial_call=True,
 )
 def search_institution(query):
     if not query or len(query) < 3:
@@ -400,7 +398,6 @@ def search_institution(query):
     State("oa-inst-id",    "data"),
     State("oa-keywords",   "value"),
     State("oa-years",      "value"),
-    prevent_initial_call=True,
 )
 def run_oa_search(n_clicks, inst_id, keywords, years):
     global DF_FULL, DF_GENDER
@@ -613,7 +610,7 @@ def render_dashboard(version):
     Input("filter-type",   "value"),
     Input("filter-source", "value"),
     Input("data-version",  "data"),
-, prevent_initial_call=True)
+)
 def update_stats(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -637,7 +634,7 @@ def update_stats(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
-, prevent_initial_call=True)
+prevent_initial_call=True)
 def update_production(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -681,7 +678,7 @@ def update_production(years, types, sources, _):
     Input("filter-type",     "value"),
     Input("filter-source",   "value"),
     Input("data-version",    "data"),
-, prevent_initial_call=True)
+prevent_initial_call=True)
 def update_sources(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -711,7 +708,7 @@ def update_sources(years, types, sources, _):
     Input("filter-type",         "value"),
     Input("filter-source",       "value"),
     Input("data-version",        "data"),
-, prevent_initial_call=True)
+prevent_initial_call=True)
 def update_authors(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -747,7 +744,7 @@ def update_authors(years, types, sources, _):
     Input("filter-type",           "value"),
     Input("filter-source",         "value"),
     Input("data-version",          "data"),
-, prevent_initial_call=True)
+prevent_initial_call=True)
 def update_countries(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -776,7 +773,7 @@ def update_countries(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
-, prevent_initial_call=True)
+prevent_initial_call=True)
 def update_documents(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -822,7 +819,7 @@ def update_documents(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
-, prevent_initial_call=True)
+prevent_initial_call=True)
 def update_keywords(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -904,7 +901,7 @@ def update_keywords(years, types, sources, _):
     Input("filter-type",     "value"),
     Input("filter-source",   "value"),
     Input("data-version",    "data"),
-, prevent_initial_call=True)
+prevent_initial_call=True)
 def update_synthesis(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -980,7 +977,7 @@ GENDER_COLORS = {
     Input("filter-source",       "value"),
     Input("data-version",        "data"),
     prevent_initial_call=False,
-, prevent_initial_call=True)
+)
 def update_gender(n_clicks, use_genderize, years, types, sources, _):
     global DF_GENDER
     df_base = filter_df(years, types or [], sources or [])
