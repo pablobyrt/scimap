@@ -1112,22 +1112,22 @@ def update_gender(n_clicks, use_genderize, years, types, sources, _, click_filte
     prevent_initial_call=True,
 )
 def download_excel_report(n_clicks):
-    """Genera y descarga reporte Excel profesional."""
+    """Genera y descarga dashboard Excel profesional."""
     try:
-        import excel_report as er
+        import dashboard as db
 
         if DF_FULL.empty:
-            return dash.no_update, "Sin datos para exportar"
+            return dash.no_update, "Sin datos"
 
-        # Generar reporte
-        output_path = Path(tempfile.gettempdir()) / f"scimap_{int(time.time())}.xlsx"
-        er.generate_report(DF_FULL, str(output_path))
+        # Generar dashboard
+        output_path = Path(tempfile.gettempdir()) / f"Scimap_{int(time.time())}.xlsx"
+        db.generate_dashboard(DF_FULL, str(output_path))
 
         # Enviar para descargar
-        return dcc.send_file(str(output_path)), "Listo"
+        return dcc.send_file(str(output_path)), "✓"
 
     except Exception as e:
-        return dash.no_update, f"Error: {str(e)[:30]}"
+        return dash.no_update, f"Error: {str(e)[:25]}"
 
 
 # ── callbacks interactivos: click-to-filter ───────────────────────────────────
