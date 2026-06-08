@@ -636,7 +636,7 @@ def update_stats(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
-    prevent_initial_call=True,
+    prevent_initial_call=False,
 )
 def update_production(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
@@ -681,7 +681,7 @@ def update_production(years, types, sources, _):
     Input("filter-type",     "value"),
     Input("filter-source",   "value"),
     Input("data-version",    "data"),
-    prevent_initial_call=True,
+    prevent_initial_call=False,
 )
 def update_sources(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
@@ -712,7 +712,7 @@ def update_sources(years, types, sources, _):
     Input("filter-type",         "value"),
     Input("filter-source",       "value"),
     Input("data-version",        "data"),
-    prevent_initial_call=True,
+    prevent_initial_call=False,
 )
 def update_authors(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
@@ -749,7 +749,7 @@ def update_authors(years, types, sources, _):
     Input("filter-type",           "value"),
     Input("filter-source",         "value"),
     Input("data-version",          "data"),
-    prevent_initial_call=True,
+    prevent_initial_call=False,
 )
 def update_countries(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
@@ -779,7 +779,7 @@ def update_countries(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
-    prevent_initial_call=True,
+    prevent_initial_call=False,
 )
 def update_documents(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
@@ -909,7 +909,7 @@ def update_keywords(years, types, sources, _):
     Input("filter-type",     "value"),
     Input("filter-source",   "value"),
     Input("data-version",    "data"),
-    prevent_initial_call=True,
+    prevent_initial_call=False,
 )
 def update_synthesis(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
