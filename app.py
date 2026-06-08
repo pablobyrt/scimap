@@ -613,7 +613,7 @@ def render_dashboard(version):
     Input("filter-type",   "value"),
     Input("filter-source", "value"),
     Input("data-version",  "data"),
-)
+, prevent_initial_call=True)
 def update_stats(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -637,7 +637,7 @@ def update_stats(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
-)
+, prevent_initial_call=True)
 def update_production(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -681,7 +681,7 @@ def update_production(years, types, sources, _):
     Input("filter-type",     "value"),
     Input("filter-source",   "value"),
     Input("data-version",    "data"),
-)
+, prevent_initial_call=True)
 def update_sources(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -711,7 +711,7 @@ def update_sources(years, types, sources, _):
     Input("filter-type",         "value"),
     Input("filter-source",       "value"),
     Input("data-version",        "data"),
-)
+, prevent_initial_call=True)
 def update_authors(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -747,7 +747,7 @@ def update_authors(years, types, sources, _):
     Input("filter-type",           "value"),
     Input("filter-source",         "value"),
     Input("data-version",          "data"),
-)
+, prevent_initial_call=True)
 def update_countries(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -776,7 +776,7 @@ def update_countries(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
-)
+, prevent_initial_call=True)
 def update_documents(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -822,7 +822,7 @@ def update_documents(years, types, sources, _):
     Input("filter-type",      "value"),
     Input("filter-source",    "value"),
     Input("data-version",     "data"),
-)
+, prevent_initial_call=True)
 def update_keywords(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -904,7 +904,7 @@ def update_keywords(years, types, sources, _):
     Input("filter-type",     "value"),
     Input("filter-source",   "value"),
     Input("data-version",    "data"),
-)
+, prevent_initial_call=True)
 def update_synthesis(years, types, sources, _):
     df = filter_df(years, types or [], sources or [])
     if df.empty:
@@ -980,7 +980,7 @@ GENDER_COLORS = {
     Input("filter-source",       "value"),
     Input("data-version",        "data"),
     prevent_initial_call=False,
-)
+, prevent_initial_call=True)
 def update_gender(n_clicks, use_genderize, years, types, sources, _):
     global DF_GENDER
     df_base = filter_df(years, types or [], sources or [])
