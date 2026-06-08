@@ -156,7 +156,7 @@ def parse_excel(path: str | Path) -> pd.DataFrame:
     df = df.rename(columns=col_map)
 
     # Asegurar columnas mínimas
-    for col in ["title", "authors", "year", "journal", "doi", "abstract", "keywords", "affiliations"]:
+    for col in ["title", "authors", "year", "journal", "doi", "abstract", "keywords", "affiliations", "language", "publisher", "type", "volume"]:
         if col not in df.columns:
             df[col] = ""
 
