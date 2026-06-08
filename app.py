@@ -240,6 +240,16 @@ SIDEBAR = html.Div([
         html.Hr(style={"borderColor": "#334155", "margin": "10px 0"}),
     ], style={"padding": "0 1rem"}),
 
+    # Descargar reporte
+    html.Div([
+        dbc.Button("📊 Descargar Excel", id="btn-download-report", color="warning",
+                   size="sm", className="w-100", style={"marginBottom": "8px"}),
+        dcc.Download(id="download-report"),
+        html.Div(id="report-status", style={"color": "#94A3B8", "fontSize": "0.7rem",
+                                             "textAlign": "center", "minHeight": "14px"}),
+        html.Hr(style={"borderColor": "#334155", "margin": "8px 0"}),
+    ], style={"padding": "0 1rem"}),
+
     # Navegación
     html.Div([
         html.Small("NAVEGACION", style={
@@ -1091,6 +1101,33 @@ def update_gender(n_clicks, use_genderize, years, types, sources, _, click_filte
         f"Cobertura: {coverage}% — {methods_str}",
         f"Listo — {coverage}% cobertura",
     )
+
+
+# ── descargar reporte Excel ───────────────────────────────────────────────────
+
+@callback(
+    Output("download-report", "data"),
+    Output("report-status", "children"),
+    Input("btn-download-report", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_excel_report(n_clicks):
+    """Genera y descarga reporte Excel profesional."""
+    try:
+        import excel_report as er
+
+        if DF_FULL.empty:
+            return dash.no_update, "Sin datos para exportar"
+
+        # Generar reporte
+        output_path = Path(tempfile.gettempdir()) / f"scimap_{int(time.time())}.xlsx"
+        er.generate_report(DF_FULL, str(output_path))
+
+        # Enviar para descargar
+        return dcc.send_file(str(output_path)), "Listo"
+
+    except Exception as e:
+        return dash.no_update, f"Error: {str(e)[:30]}"
 
 
 # ── callbacks interactivos: click-to-filter ───────────────────────────────────
