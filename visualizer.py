@@ -530,7 +530,14 @@ def network_to_pyvis_html(G: nx.Graph, title: str, output_path: Path,
     net.set_options(json.dumps({
         "nodes": {"shape": "dot", "scaling": {"min": 8, "max": 28}},
         "edges": {"color": {"opacity": 0.4}, "smooth": False},
-        "physics": {"stabilization": {"iterations": 150}},
+        "physics": {
+            "stabilization": {
+                "iterations": 500,
+                "fit": True,
+                "updateInterval": 25
+            },
+            "enabled": False
+        },
         "interaction": {"hover": True, "tooltipDelay": 100},
     }))
 
