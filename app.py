@@ -363,32 +363,50 @@ def handle_upload(contents, filename):
     if not contents:
         return "", dash.no_update
 
-    content_type, content_string = contents.split(",", 1)
-    decoded = base64.b64decode(content_string)
-    suffix  = Path(filename).suffix.lower()
-
-    if suffix not in (".bib", ".txt", ".tsv", ".xlsx", ".xls"):
-        return f"Formato no soportado: {suffix}", dash.no_update
-
     try:
+        # Parsear contenido base64
+        content_type, content_string = contents.split(",", 1)
+        decoded = base64.b64decode(content_string)
+        suffix  = Path(filename).suffix.lower()
+
+        print(f"\n>>> UPLOAD: {filename} ({len(decoded)} bytes, {suffix})")
+
+        # Validar formato
+        if suffix not in (".bib", ".txt", ".tsv", ".xlsx", ".xls"):
+            msg = f"Formato no soportado: {suffix}"
+            print(f">>> ERROR: {msg}")
+            return msg, dash.no_update
+
+        # Crear archivo temporal y cargar
         with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
             f.write(decoded)
             tmp = f.name
 
+        print(f">>> Parsing: {tmp}")
         df = bp.load_data(Path(tmp))
         os.unlink(tmp)
 
+        # Validar datos
         if df.empty:
-            return "Archivo vacío o sin datos válidos.", dash.no_update
+            msg = "Archivo vacío o sin datos válidos"
+            print(f">>> ERROR: {msg}")
+            return msg, dash.no_update
 
+        # Procesar año
         df["year"] = pd.to_numeric(df["year"], errors="coerce")
         DF_FULL   = df
         DF_GENDER = ge.gender_analysis_df(DF_FULL, use_genderize=False, use_web=False)
 
-        return f"Cargado: {filename} ({len(df)} papers)", int(time.time())
+        msg = f"OK: {filename} • {len(df)} papers • {DF_FULL['year'].min():.0f}-{DF_FULL['year'].max():.0f}"
+        print(f">>> SUCCESS: {msg}")
+        return msg, int(time.time())
 
     except Exception as e:
-        return f"Error: {str(e)[:60]}", dash.no_update
+        import traceback
+        error_msg = f"Error: {str(e)[:50]}"
+        print(f">>> EXCEPTION: {e}")
+        print(traceback.format_exc())
+        return error_msg, dash.no_update
 
 
 # ── OpenAlex: buscar institución ──────────────────────────────────────────────
