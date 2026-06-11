@@ -242,9 +242,31 @@ def load_data(*paths: str | Path) -> pd.DataFrame:
             raise ValueError(f"Formato no soportado: {p.suffix}")
 
     df = pd.concat(frames, ignore_index=True)
-    # Deduplicar por DOI cuando viene de ambas fuentes
-    df = df.drop_duplicates(subset=["doi"], keep="first").reset_index(drop=True)
-    return df
+    initial_count = len(df)
+
+    # Deduplicación multi-nivel
+    # 1. Por DOI (más confiable)
+    df_with_doi = df[df["doi"].notna() & (df["doi"] != "")]
+    if not df_with_doi.empty:
+        df_no_doi = df[~df.index.isin(df_with_doi.index)]
+        df_with_doi = df_with_doi.drop_duplicates(subset=["doi"], keep="first")
+        df = pd.concat([df_with_doi, df_no_doi], ignore_index=True)
+
+    # 2. Por título + autores (para papers sin DOI)
+    df["_title_authors"] = (
+        df["title"].fillna("").str.lower().str.strip() + " | " +
+        df["authors"].apply(lambda x: ";".join(sorted(x)).lower() if isinstance(x, list) else "")
+    )
+    df = df.drop_duplicates(subset=["_title_authors"], keep="first")
+    df = df.drop(columns=["_title_authors"])
+
+    final_count = len(df)
+    removed = initial_count - final_count
+
+    if removed > 0:
+        print(f"Deduplication: {initial_count} -> {final_count} ({removed} duplicates removed)")
+
+    return df.reset_index(drop=True)
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
