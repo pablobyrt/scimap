@@ -1049,9 +1049,23 @@ def update_gender(n_clicks, use_genderize, years, types, sources, _, click_filte
         return [_empty_fig()] * 3 + ["", "", "Sin datos"]
 
     if ctx.triggered_id == "btn-gender" and n_clicks:
-        DF_GENDER = ge.gender_analysis_df(df_base, use_genderize=use_genderize, use_web=False)
+        print(f"\n>>> Gender analysis: {len(df_base)} authors, genderize={use_genderize}")
+        try:
+            DF_GENDER = ge.gender_analysis_df(df_base, use_genderize=use_genderize, use_web=False)
+            print(f">>> Done: {len(DF_GENDER)} results")
+        except Exception as e:
+            print(f">>> ERROR: {e}")
+            import traceback
+            traceback.print_exc()
+            return [_empty_fig()] * 3 + ["", "", f"Error: {str(e)[:40]}"]
     elif DF_GENDER.empty or len(DF_GENDER) != len(df_base):
-        DF_GENDER = ge.gender_analysis_df(df_base, use_genderize=False, use_web=False)
+        print(f"\n>>> Gender analysis: {len(df_base)} authors (cache miss)")
+        try:
+            DF_GENDER = ge.gender_analysis_df(df_base, use_genderize=False, use_web=False)
+            print(f">>> Done: {len(DF_GENDER)} results")
+        except Exception as e:
+            print(f">>> ERROR: {e}")
+            return [_empty_fig()] * 3 + ["", "", f"Error: {str(e)[:40]}"]
 
     summary  = ge.gender_summary(DF_GENDER)
     vc       = summary["overall"]
