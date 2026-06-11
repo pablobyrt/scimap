@@ -20,14 +20,21 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 # ── COLORES CORPORATIVOS ──────────────────────────────────────────────────────
-THEME_PRIMARY = "1e3a5f"      # Azul oscuro
-THEME_SECONDARY = "2563EB"    # Azul
-THEME_ACCENT = "F59E0B"       # Naranja
-THEME_SUCCESS = "10B981"      # Verde
-THEME_LIGHT = "F8FAFC"        # Gris claro
-THEME_TEXT = "1e293b"         # Texto oscuro
+# Para openpyxl: sin # (ej: "1e3a5f")
+THEME_PRIMARY = "1e3a5f"       # Azul oscuro
+THEME_SECONDARY = "2563EB"     # Azul
+THEME_ACCENT = "F59E0B"        # Naranja
+THEME_SUCCESS = "10B981"       # Verde
+THEME_LIGHT = "F8FAFC"         # Gris claro
+THEME_TEXT = "1e293b"          # Texto oscuro
 
-PALETTE_COLORS = [THEME_SECONDARY, THEME_ACCENT, THEME_SUCCESS, "#EF4444", "#8B5CF6", "#EC4899"]
+# Para Plotly: con # (ej: "#2563EB")
+PLOTLY_PRIMARY = "#1e3a5f"
+PLOTLY_SECONDARY = "#2563EB"
+PLOTLY_ACCENT = "#F59E0B"
+PLOTLY_SUCCESS = "#10B981"
+
+PALETTE_COLORS = [PLOTLY_SECONDARY, PLOTLY_ACCENT, PLOTLY_SUCCESS, "#EF4444", "#8B5CF6", "#EC4899"]
 
 
 class DashboardBuilder:
@@ -199,7 +206,7 @@ def generate_dashboard(df, output_path="Scimap_Dashboard.xlsx"):
     # Gráfico 1: Producción por año
     try:
         by_year = df.groupby("year").size().reset_index(name="count")
-        fig = go.Figure(go.Bar(x=by_year["year"], y=by_year["count"], marker_color=THEME_SECONDARY,
+        fig = go.Figure(go.Bar(x=by_year["year"], y=by_year["count"], marker_color=PLOTLY_SECONDARY,
                                text=by_year["count"], textposition="outside"))
         fig.update_layout(title="Producción Científica por Año", showlegend=False, height=400,
                          plot_bgcolor="white", paper_bgcolor="white")
@@ -214,8 +221,11 @@ def generate_dashboard(df, output_path="Scimap_Dashboard.xlsx"):
 
     # Top 20 autores
     try:
-        top_auth = an.top_authors(df).head(20)[["author", "count", "citations"]].reset_index(drop=True)
-        top_auth.columns = ["Autor", "Documentos", "Citas"]
+        top_auth = an.top_authors(df).head(20)
+        # Seleccionar solo columnas que existan
+        cols = [c for c in ["author", "count", "citations"] if c in top_auth.columns]
+        top_auth = top_auth[cols].reset_index(drop=True)
+        top_auth.columns = [c.replace("author", "Autor").replace("count", "Documentos").replace("citations", "Citas") for c in top_auth.columns]
         row = builder.add_table(ws, top_auth, start_row=row, max_rows=20, title="Top 20 Autores Más Productivos")
     except Exception as e:
         print(f"Error tabla autores: {e}")
@@ -267,16 +277,20 @@ def generate_dashboard(df, output_path="Scimap_Dashboard.xlsx"):
     row = builder.style_header(ws, "Top Revistas/Fuentes")
 
     try:
-        sources = an.top_sources(df).head(20)[["source", "count"]].reset_index(drop=True)
-        sources.columns = ["Revista/Fuente", "Documentos"]
+        sources_df = an.top_sources(df).head(20)
+        # Usar nombre de columna correcto
+        col_name = sources_df.columns[0] if len(sources_df.columns) > 0 else "source"
+        sources_df = sources_df.rename(columns={col_name: "source"})
+        sources_df = sources_df[["source", "count"]].reset_index(drop=True) if "count" in sources_df.columns else sources_df
+        sources_df.columns = ["Revista/Fuente", "Documentos"]
 
-        fig = px.barh(sources, x="Documentos", y="Revista/Fuente",
+        fig = px.barh(sources_df, x="Documentos", y="Revista/Fuente",
                      color="Documentos", color_continuous_scale="Oranges",
                      title="Top 20 Revistas Científicas")
         fig.update_layout(height=500, paper_bgcolor="white", plot_bgcolor="white")
         row = builder.add_chart(ws, fig, row, width=18, height=11)
 
-        row = builder.add_table(ws, sources, start_row=row, max_rows=20)
+        row = builder.add_table(ws, sources_df, start_row=row, max_rows=20)
     except Exception as e:
         print(f"Error fuentes: {e}")
 
